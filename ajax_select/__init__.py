@@ -13,7 +13,7 @@ from django.utils.text import capfirst
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import autodiscover_modules
-from django.contrib.admin.sites import site
+from .sites import site
 
 
 class LookupChannel(object):
@@ -218,37 +218,9 @@ def make_channel(app_model, arg_search_field):
     return MadeLookupChannel()
 
 
-class AutoDiscover():
-
-    def __getitem__(self, key):
-        if not hasattr(self, 'channels'):
-            self.channels = self.discover_channels()
-        return self.channels[key]
-
-    @staticmethod
-    def merge_dict(d1, d2):
-        """
-        Merges two dictionaries into one new dict using copy()
-        :param d1: Dict()
-        :param d2: Dict()
-        :return: Dict()
-        """
-        merged = d1.copy()
-        merged.update(d2)
-        return merged
-
-    @staticmethod
-    def discover_channels():
-        channels = {}
-        autodiscover_modules('lookup', register_to=site)
-        for module in site._registry:
-            try:
-                if hasattr(module, "AJAX_LOOKUP_CHANNELS"):
-                    channels = AutoDiscover.merge_dict(channels, module.AJAX_LOOKUP_CHANNELS)
-            except:
-                pass
-
-        return channels
 
 
-channels = settings.AJAX_LOOKUP_CHANNELS if hasattr(settings, 'AJAX_LOOKUP_CHANNELS') else AutoDiscover()
+def autodiscover():
+    autodiscover_modules('lookup', site)
+
+default_app_config = 'ajax_select.apps.AjaxSelectsConfig'
