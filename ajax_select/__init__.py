@@ -167,7 +167,7 @@ def get_lookup(channel):
     """ find the lookup class for the named channel.  this is used internally """
 
     try:
-        lookup_label = channels[channel]
+        lookup_label = site._registry[channel]
     except AttributeError:
         raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS is not configured")
     except KeyError:
@@ -219,8 +219,7 @@ def make_channel(app_model, arg_search_field):
 
 
 
-
 def autodiscover():
     autodiscover_modules('lookup', site)
 
-default_app_config = 'ajax_select.apps.AjaxSelectsConfig'
+default_app_config = 'ajax_select.apps.AjaxSelectConfig'

@@ -1,4 +1,3 @@
-from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from ajax_select import LookupChannel
 
 class AlreadyRegistered(Exception):
@@ -14,40 +13,29 @@ class AjaxSelectSite(object):
     def __init__(self):
         self._registry = {}
 
-    def merge_dict(d1, d2):
-        """
-        Merges two dictionaries into one new dict using copy()
-        :param d1: Dict()
-        :param d2: Dict()
-        :return: Dict()
-        """
-        merged = d1.copy()
-        merged.update(d2)
-        return merged
+    def register(self, channel_or_iterable, lookup_class=None):
 
-     def register(self, model_or_iterable, lookup_class=None):
+        if isinstance(channel_or_iterable, LookupChannel):
+            channel_or_iterable = [channel_or_iterable]
 
-        if isinstance(model_or_iterable, LookupChannel):
-            model_or_iterable = [model_or_iterable]
-
-        for model in model_or_iterable:
-            if model in self._registry:
-                raise AlreadyRegistered('The model %s is already registered' % model.__name__)
+        for channel in channel_or_iterable:
+            if self.is_registered(channel):
+                raise AlreadyRegistered('The channel %s is already registered' % channel.__name__)
 
         # Instantiate the lookup class to save in the registry
-        self._registry[model] = lookup_class(model, self)
+        self._registry[channel] = lookup_class(channel, self)
 
-    def unregister(self, model_or_iterable):
+    def unregister(self, channel_or_iterable):
         """
         Unregisters the given model(s).
         If a model isn't already registered, this will raise NotRegistered.
         """
-        if isinstance(model_or_iterable, LookupChannel):
-            model_or_iterable = [model_or_iterable]
-        for model in model_or_iterable:
-            if model not in self._registry:
-                raise NotRegistered('The model %s is not registered' % model.__name__)
-            del self._registry[model]
+        if isinstance(channel_or_iterable, LookupChannel):
+            channel_or_iterable = [channel_or_iterable]
+        for channel in channel_or_iterable:
+            if not self.is_registered(channel):
+                raise NotRegistered('The channel %s is not registered' % channel.__name__)
+            del self._registry[channel]
 
 
     def is_registered(self, model):
