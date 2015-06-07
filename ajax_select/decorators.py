@@ -16,7 +16,7 @@ def register(*models, **kwargs):
         if not issubclass(lookup_class, LookupChannel):
             raise ValueError('Wrapped class must subclass LookupChannel.')
 
-        target_site.register(models, admin_class=admin_class)
+        site.register(models, lookup_class=lookup_class)
 
         return lookup_class
     return _ajax_select_wrapper
