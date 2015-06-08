@@ -17,4 +17,6 @@ class AjaxSelectConfig(SimpleAjaxSelectConfig):
 
     def ready(self):
         super(AjaxSelectConfig, self).ready()
+        channels = AutoDiscover()
+        site.register(channels)
         self.module.autodiscover()

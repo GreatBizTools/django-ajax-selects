@@ -13,36 +13,65 @@ class AjaxSelectSite(object):
     def __init__(self):
         self._registry = {}
 
-    def register(self, channel_or_iterable, lookup_class=None):
+    def register(self, lookup_labels):
 
-        if isinstance(channel_or_iterable, LookupChannel):
-            channel_or_iterable = [channel_or_iterable]
+        # channel data structure is { 'channel' : ( module.lookup, lookupclass ) }
+        # or                        { 'channel' : { 'model': 'xxxxx', 'search_field': 'xxxx' }
+        merge_dict(self._registry, lookup_labels)
 
-        for channel in channel_or_iterable:
-            if self.is_registered(channel):
-                raise AlreadyRegistered('The channel %s is already registered' % channel.__name__)
-
-        # Instantiate the lookup class to save in the registry
-        self._registry[channel] = lookup_class(channel, self)
-
-    def unregister(self, channel_or_iterable):
+    def unregister(self, lookup_labels):
         """
         Unregisters the given model(s).
         If a model isn't already registered, this will raise NotRegistered.
         """
-        if isinstance(channel_or_iterable, LookupChannel):
-            channel_or_iterable = [channel_or_iterable]
-        for channel in channel_or_iterable:
-            if not self.is_registered(channel):
-                raise NotRegistered('The channel %s is not registered' % channel.__name__)
-            del self._registry[channel]
+        # channel data structure is { label : ( module.lookup, lookupclass ) }
+        for channel_name in lookup_labels.keys():
+            if not self.is_registered(channel_name):
+                raise NotRegistered('The channel %s is not registered' % channel_name)
+            del self._registry[channel_name]
+
+    def is_registered(self, label):
+        """
+        Check if a LookupChannel class is registered with this `AjaxSelectSite`.
+        """
+        return label in self._registry
+
+def merge_dict(d1, d2):
+    """
+    Merges two dictionaries into one new dict using copy()
+    :param d1: Dict()
+    :param d2: Dict()
+    :return: Dict()
+    """
+    merged = d1.copy()
+    merged.update(d2)
+    return merged
 
 
-    def is_registered(self, model):
-        """
-        Check if a model class is registered with this `AjaxSelectSite`.
-        """
-        return model in self._registry
+class AutoDiscover():
+
+    def __getitem__(self, key):
+        if not hasattr(self, 'channels'):
+            self.channels = self.discover_channels()
+        return self.channels[key]
+
+    @staticmethod
+    def discover_channels():
+        from django.conf import settings
+
+        channels = {}
+
+        for app in settings.INSTALLED_APPS:
+            try:
+                app_root = getattr(app)
+                lookup = getattr(app_root, 'lookup')
+
+                if hasattr(lookup, "AJAX_LOOKUP_CHANNELS"):
+                    channels = merge_dict(channels, lookup.AJAX_LOOKUP_CHANNELS)
+            except:
+                pass
+
+        return channels
 
 
 site = AjaxSelectSite()
