@@ -1,4 +1,4 @@
-def register(*models, **kwargs):
+def register(label):
     """
     Registers the given model(s) classes and wrapped ModelAdmin class with
     admin site:
@@ -13,10 +13,17 @@ def register(*models, **kwargs):
 
     def _ajax_select_wrapper(lookup_class):
 
+        if not label or len(label) == 0:
+            raise ValueError('Lookup Channel must have a label')
+
         if not issubclass(lookup_class, LookupChannel):
             raise ValueError('Wrapped class must subclass LookupChannel.')
 
-        site.register(models, lookup_class=lookup_class)
+        lookup_class_module = lookup_class.__module__
+
+        lookup_module_location = '{0}.lookup.py'.format(lookup_class_module)
+
+        site.register({label: (lookup_module_location,  lookup_class.__name__) })
 
         return lookup_class
     return _ajax_select_wrapper

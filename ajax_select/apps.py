@@ -2,7 +2,7 @@ from django.apps import AppConfig
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from .sites import site
+from .sites import site, AutoDiscover
 
 
 class SimpleAjaxSelectConfig(AppConfig):
@@ -17,6 +17,6 @@ class AjaxSelectConfig(SimpleAjaxSelectConfig):
 
     def ready(self):
         super(AjaxSelectConfig, self).ready()
-        channels = AutoDiscover()
-        site.register(channels)
+        #channels = AutoDiscover()
+        #site.register(channels)
         self.module.autodiscover()
