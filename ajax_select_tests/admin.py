@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from ajax_select.admin import AjaxSelectAdmin
+
+from .models import TestUser
+
+@admin.register(TestUser)
+class TestUserAdmin(AjaxSelectAdmin):
+    pass
