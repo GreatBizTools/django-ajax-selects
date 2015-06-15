@@ -4,7 +4,6 @@ __author__ = "crucialfelix"
 __contact__ = "crucialfelix@gmail.com"
 __homepage__ = "https://github.com/crucialfelix/django-ajax-selects/"
 
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.contrib.contenttypes.models import ContentType
@@ -14,6 +13,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import autodiscover_modules
 from .sites import site
+from .decorators import register
 
 
 class LookupChannel(object):
@@ -92,7 +92,7 @@ def make_ajax_form(model, fieldlist, superclass=ModelForm, show_help_text=False,
     class TheForm(superclass):
 
         class Meta:
-            pass
+            exclude = []
         setattr(Meta, 'model', model)
         if hasattr(superclass, 'Meta'):
             if hasattr(superclass.Meta, 'fields'):
@@ -107,7 +107,7 @@ def make_ajax_form(model, fieldlist, superclass=ModelForm, show_help_text=False,
 
         TheForm.declared_fields[model_fieldname] = f
         TheForm.base_fields[model_fieldname] = f
-        setattr(TheForm, model_fieldname, f)
+        #setattr(TheForm, model_fieldname, f)
 
     return TheForm
 
@@ -168,11 +168,9 @@ def get_lookup(channel):
 
     try:
         lookup_label = site._registry[channel]
-    except AttributeError:
-        raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS is not configured")
     except KeyError:
         raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS not configured correctly for %(channel)r "
-                                   "or autodiscovery could not locate %(channel)r" % channel)
+                                   "or autodiscovery could not locate %(channel)r" % {'channel': channel})
 
     if isinstance(lookup_label, dict):
         # 'channel' : dict(model='app.model', search_field='title' )
@@ -220,6 +218,6 @@ def make_channel(app_model, arg_search_field):
 
 
 def autodiscover():
-    autodiscover_modules('lookup', site)
+    autodiscover_modules('lookups', register_to=site)
 
 default_app_config = 'ajax_select.apps.AjaxSelectConfig'

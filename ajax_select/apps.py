@@ -1,8 +1,9 @@
 from django.apps import AppConfig
+from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from .sites import site, AutoDiscover
+from .sites import site
 
 
 class SimpleAjaxSelectConfig(AppConfig):
@@ -11,12 +12,13 @@ class SimpleAjaxSelectConfig(AppConfig):
     verbose_name = _('AjaxSelects')
 
     def ready(self):
-        site.register(settings.AJAX_LOOKUP_CHANNELS)
+        try:
+            site.register(settings.AJAX_LOOKUP_CHANNELS)
+        except AttributeError:
+            raise ImproperlyConfigured("settings.AJAX_LOOKUP_CHANNELS is not configured")
 
 class AjaxSelectConfig(SimpleAjaxSelectConfig):
 
     def ready(self):
         super(AjaxSelectConfig, self).ready()
-        #channels = AutoDiscover()
-        #site.register(channels)
         self.module.autodiscover()

@@ -8,6 +8,7 @@ def register(label):
     A kwarg of `site` can be passed as the admin site, otherwise the default
     admin site will be used.
     """
+
     from ajax_select import LookupChannel
     from ajax_select.sites import site
 
@@ -19,9 +20,7 @@ def register(label):
         if not issubclass(lookup_class, LookupChannel):
             raise ValueError('Wrapped class must subclass LookupChannel.')
 
-        lookup_class_module = lookup_class.__module__
-
-        lookup_module_location = '{0}.lookup.py'.format(lookup_class_module)
+        lookup_module_location = lookup_class.__module__
 
         site.register({label: (lookup_module_location,  lookup_class.__name__) })
 
