@@ -16,7 +16,11 @@ INSTALLED_APPS = (
     ####################################
 )
 
-
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware'
+)
 ###########################################################################
 
 # DEFINE THE SEARCH CHANNELS:
@@ -27,10 +31,10 @@ AJAX_LOOKUP_CHANNELS = {
 
     # Custom channels are specified with a tuple
     # channel: ( module.where_lookup_is, ClassNameOfLookup )
-    'person': ('example.lookups', 'PersonLookup'),
-    'group': ('example.lookups', 'GroupLookup'),
-    'song': ('example.lookups', 'SongLookup'),
-    'cliche': ('example.lookups', 'ClicheLookup')
+#     'person': ('example.lookups', 'PersonLookup'),
+#     'group': ('example.lookups', 'GroupLookup'),
+#     'song': ('example.lookups', 'SongLookup'),
+#     'cliche': ('example.lookups', 'ClicheLookup')
 }
 
 

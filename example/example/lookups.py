@@ -3,8 +3,9 @@ from django.db.models import Q
 from django.utils.html import escape
 from example.models import *
 from ajax_select import LookupChannel
+import ajax_select
 
-
+@ajax_select.register('person')
 class PersonLookup(LookupChannel):
 
     model = Person
@@ -25,7 +26,7 @@ class PersonLookup(LookupChannel):
         """ (HTML) formatted item for displaying item in the selected deck area """
         return u"%s<div><i>%s</i></div>" % (escape(obj.name), escape(obj.email))
 
-
+@ajax_select.register('group')
 class GroupLookup(LookupChannel):
 
     model = Group
@@ -49,7 +50,7 @@ class GroupLookup(LookupChannel):
             """
         return True
 
-
+@ajax_select.register('song')
 class SongLookup(LookupChannel):
 
     model = Song
@@ -66,7 +67,7 @@ class SongLookup(LookupChannel):
     def format_item_display(self, obj):
         return "%s<div><i>by %s</i></div>" % (escape(obj.title), escape(obj.group.name))
 
-
+@ajax_select.register('cliche')
 class ClicheLookup(LookupChannel):
 
     """ an autocomplete lookup does not need to search models
